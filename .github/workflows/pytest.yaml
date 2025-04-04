@@ -29,8 +29,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # Set PYTHONPATH and run tests with pytest
-      - name: Run tests
+      # Install make (for Ubuntu)
+      - name: Install make
         run: |
-          export PYTHONPATH=$(pwd)/src:$PYTHONPATH
-          pytest tests/ --maxfail=1 --disable-warnings -q
+          sudo apt-get update
+          sudo apt-get install -y make
+
+      # Run tests using the Makefile
+      - name: Run tests using Makefile
+        run: |
+          make test
