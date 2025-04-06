@@ -1,3 +1,4 @@
 - Include inequality constraints (G x <= h)
-- Add optimizers for qiskit and pennylane
 - Add integer and continuous variables
+- Add noise to pennylane
+- Create examples

@@ -13,6 +13,30 @@ class QuantumTranslator:
                  lhs_ineq_matrix: np.ndarray = None,
                  rhs_ineq_vector: np.ndarray = None,
                  penalty_factor: float = None) -> None:
+        """
+        Initialize the QuantumTranslator with optimization problem parameters.
+
+        - The objective function is of the form x^T Q x + l^T x.
+        - The equality constraints are of the form Ax = b.
+        - The inequality constraints are of the form Gx <= h.
+
+        Parameters
+        ----------
+        quad_cost_matrix : np.ndarray
+            The quadratic cost matrix Q in the objective function x^T Q x.
+        lin_cost_matrix : np.ndarray
+            The linear cost vector l in the objective function l^T x.
+        lhs_eq_matrix : np.ndarray, optional
+            The left-hand side matrix A of equality constraints Ax = b.
+        rhs_eq_vector : np.ndarray, optional
+            The right-hand side vector b of equality constraints Ax = b.
+        lhs_ineq_matrix : np.ndarray, optional
+            The left-hand side matrix G of inequality constraints Gx <= h.
+        rhs_ineq_vector : np.ndarray, optional
+            The right-hand side vector h of inequality constraints Gx <= h.
+        penalty_factor : float, optional
+            The penalty factor for constraint violations. If None, a default value is computed.
+        """
         self.Q = np.asarray(quad_cost_matrix)
         self.l = np.asarray(lin_cost_matrix)
         self.G = np.asarray(lhs_ineq_matrix)
@@ -117,6 +141,11 @@ class QuantumTranslator:
         - AssertionError: If Q is not a square matrix or if the shape of l does not match Q when provided.
         """
         # Ising transformation
-        J = self.to_qubo()
+        qubo = self.to_qubo()
+        J, h = self.qubo_to_ising(qubo)
+        return J, h
+
+    def qubo_to_ising(self, qubo: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        J = qubo
         h = -(J + J.T) @ np.ones(J.shape[0])
         return J, h
