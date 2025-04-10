@@ -1,14 +1,30 @@
 from warnings import warn
 from abc import ABC, abstractmethod
 import numpy as np
+from types import NoneType
 from typing import Union
-
+from icecream import ic
 
 class BaseSolver(ABC):
 
     def __init__(self, solver: str, options: dict = None):
-        self.solver = solver
-        self.options = options if options is not None else {}
+        assert isinstance(solver, str), f'solver must be a string, got {type(solver)}'
+        assert isinstance(options, (dict, NoneType)), f'options must be a dict or None, got {type(options)}'
+        self._solver = solver
+        self._options = options or {}
+
+    @property
+    def solver(self):
+        return self._solver
+
+    @property
+    def options(self):
+        return self._options
+
+    @options.setter
+    def options(self, value):
+        assert isinstance(value, dict)
+        self._options = value
 
     @abstractmethod
     def solve(self, J: np.ndarray, h: np.ndarray, **kwargs) -> np.ndarray:

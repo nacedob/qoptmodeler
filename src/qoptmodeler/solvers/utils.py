@@ -38,7 +38,7 @@ def int_to_bits(n: int, length: int = None, reverse: bool = False) -> np.ndarray
     return np.array(bits)
 
 
-def _invert_integer_binary_representation(n: int, num_bits: int = None) -> int:
+def invert_integer_binary_representation(n: int, num_bits: int = None) -> int:
     """
     Inverts the bits of an integer n, considering a fixed number of bits.
 
@@ -70,6 +70,10 @@ def _invert_integer_binary_representation(n: int, num_bits: int = None) -> int:
     return N_inverted
 
 
+def to_bitstring(integer: int, num_bits: int) -> list[int]:
+    return [int(digit) for digit in f"{integer:0{num_bits}b}"]
+
+
 def from_optimization_to_qubo(qubo_quad: np.ndarray,
                               qubo_linear: np.ndarray,
                               eq_constraints_lhs: list[np.ndarray],
@@ -83,3 +87,10 @@ def from_optimization_to_qubo(qubo_quad: np.ndarray,
     :return:
     """
     raise NotImplemented()
+
+
+
+class MaxTimeWarning(Warning):
+    pass
+
+
