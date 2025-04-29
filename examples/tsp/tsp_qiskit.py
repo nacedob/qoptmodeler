@@ -19,19 +19,16 @@ def solve_tsp_qaoa(distance_matrix: np.ndarray) -> np.ndarray:
     # Create matrices for the quadratic and linear terms -------------------------------------------------
     # For references see (docs/TSP problem explanation and mathematical formulation.pdf)
     # Cost function
-    ones_with_zero_diag = np.ones((n, n))
-    np.fill_diagonal(ones_with_zero_diag, 0)
-
-    identity_with_one_row_permutated = np.eye(n)
-    identity_with_one_row_permutated = np.roll(identity_with_one_row_permutated, 1, axis=0)
-
-    cost_function = (
-        np.kron(
-            ones_with_zero_diag,
-            (identity_with_one_row_permutated * distance_matrix)
-        )
-    )
-
+    n = len(distance_matrix)
+    K = np.zeros((n, n))
+    for i in range(n):
+        if i > 0:
+            K[i, i - 1] = 0.5  # subdiagonal
+        if i < n - 1:
+            K[i, i + 1] = 0.5  # superdiagonal
+    K[0, -1] = 0.5  # top-right corner
+    K[-1, 0] = 0.5  # bottom-left corner
+    cost_function_promoted = np.kron(distance_matrix, K)
     linear_cost_function = np.zeros(int(n ** 2))
 
     # Constraint matrices
@@ -58,7 +55,7 @@ def solve_tsp_qaoa(distance_matrix: np.ndarray) -> np.ndarray:
         possible_ints.append(int_repr)
 
     # Map problem to a ISING problem ---------------------------------------------------------------------
-    translator = QuantumTranslator(quad_cost_matrix=cost_function,
+    translator = QuantumTranslator(quad_cost_matrix=cost_function_promoted,
                                    lin_cost_matrix=linear_cost_function,
                                    lhs_eq_matrix=constraints_lhs,
                                    rhs_eq_vector=constraints_rhs)
@@ -67,7 +64,7 @@ def solve_tsp_qaoa(distance_matrix: np.ndarray) -> np.ndarray:
     print('Mathematical formulation done.')
     # Solve problem with QAOA -----------------------------------------------------------------------------
     print('Solving problem with QAOA...')
-    solver = QAOASolver(solver='qiskit', n_layers=2)
+    solver = QAOASolver(solver='qiskit', n_layers=3)
     solution = solver.solve(J, h, epochs=100, silent=False, possible_result_ints=possible_ints).reshape(n, n)
     print('Solving done. Solution:')
     pprint(solution)
@@ -85,7 +82,6 @@ if __name__ == '__main__':
 
     # get solution
     solution = solve_tsp_qaoa(distance_matrix)
-
 
     # print solution
     def create_graph_from_distance_matrix(distance_matrix):

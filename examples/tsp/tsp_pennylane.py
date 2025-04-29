@@ -2,6 +2,7 @@
 This example explores the Traveling Salesman Problem (TSP) using QAOA with pennylane's interface.
 """
 
+from itertools import permutations
 import networkx as nx
 import matplotlib.pyplot as plt
 from qoptmodeler import QuantumTranslator, QAOASolver
@@ -45,6 +46,17 @@ def solve_tsp_qaoa(distance_matrix: np.ndarray) -> np.ndarray:
     constraints_lhs = np.vstack((time_cons_matrix, space_cons_matrix))
     constraints_rhs = np.hstack((time_cons_vec, space_cons_vec))
 
+    # Get expected outputs ----------------------------------------------------------------------------
+    all_perms = permutations(range(n))
+    possible_ints = []
+    for perm in all_perms:
+        matrix = np.zeros((n, n), dtype=int)
+        for i, j in enumerate(perm):
+            matrix[i, j] = 1
+        flattened_mat = matrix.flatten()
+        int_repr = int("".join(map(str, flattened_mat)), 2)
+        possible_ints.append(int_repr)
+
     # Map problem to a ISING problem ---------------------------------------------------------------------
     translator = QuantumTranslator(quad_cost_matrix=cost_function,
                                    lin_cost_matrix=linear_cost_function,
@@ -56,7 +68,7 @@ def solve_tsp_qaoa(distance_matrix: np.ndarray) -> np.ndarray:
     # Solve problem with QAOA -----------------------------------------------------------------------------
     print('Solving problem with QAOA...')
     solver = QAOASolver(solver='pennylane', n_layers=2)
-    solution = solver.solve(J, h, epochs=100, silent=False).reshape(n, n)
+    solution = solver.solve(J, h, epochs=100, silent=False, possible_result_ints=possible_ints).reshape(n, n)
     print('Solving done. Solution:')
     pprint(solution)
 
