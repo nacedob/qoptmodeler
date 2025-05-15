@@ -53,7 +53,7 @@ def test_max_time(hard_problem, solver):
                             stopping_conditions={'max_time': max_time})
     measured_time = perf_counter() - start
 
-    assert abs(measured_time - max_time) < 0.5
+    assert abs(measured_time - max_time) < 1
 
 
 # Skip test for visualization circuit

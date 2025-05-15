@@ -1,4 +1,3 @@
-- Include inequality constraints (G x <= h)
 - Add integer and continuous variables
 - Add noise to pennylane
-- Create examples
+- Include tests for inequality constraints

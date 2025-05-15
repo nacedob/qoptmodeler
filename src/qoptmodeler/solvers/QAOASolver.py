@@ -543,6 +543,12 @@ class QAOASolver(BaseSolver):
         int_counts = job.result()[0].data.meas.get_int_counts()
         shots = len(int_counts)
         final_distribution_int = {key: val / shots for key, val in int_counts.items()}
+
+        def int_to_perm_matrix(n, integer):
+            binary_str = bin(integer)[2:].zfill(n * n)  # Convert to binary and pad
+            binary_vector = np.array([int(b) for b in binary_str])
+            return binary_vector.reshape((n, n))
+
         if possible_result_ints is not None:
             final_distribution_int = {k: v
                                       for k, v in final_distribution_int.items()
